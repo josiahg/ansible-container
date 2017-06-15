@@ -308,6 +308,9 @@ class HostCommand(object):
         except exceptions.AnsibleContainerMissingImage as e:
             logger.error(str(e), exc_info=False)
             sys.exit(1)
+        except exceptions.AnsibleContainerPathNotEmpty as e:
+            logger.error("Project path '%s' is not empty. Please specify a new or empty path with --project-path" % e.args[1])
+            sys.exit(1)
         except Exception as e:
             if args.debug:
                 logger.exception('Unknown exception %s' % e, exc_info=True)

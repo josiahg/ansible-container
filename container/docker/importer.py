@@ -25,6 +25,7 @@ from six import iteritems
 from six.moves.urllib.parse import urlparse
 
 from container.exceptions import AnsibleContainerConductorException
+from container.exceptions import AnsibleContainerPathNotEmpty
 from container.utils import create_role_from_templates
 
 # Known issues:
@@ -268,7 +269,7 @@ class DockerfileParser(object):
             if '=' in label:
                 k, v = label.split('=', 1)
             elif ' ' in label:
-                # handle: 'maintainer me@foobar.com' 
+                # handle: 'maintainer me@foobar.com'
                 k, v = shlex.split(label)
             else:
                 continue
@@ -331,6 +332,8 @@ class DockerfileParser(object):
         ]))
 
         for src_spec in src_list:
+            if os.path.isdir(os.path.join(self.path, src_spec)):
+                url_and_tarball = False
             # ADD src can be a URL - look for a scheme
             if url_and_tarball and urlparse(src_spec).scheme in ['http', 'https']:
                 task = CommentedMap()
@@ -480,11 +483,15 @@ class DockerfileImport(object):
                       if dir == self.import_from else [])
 
     def run(self):
-        # FIXME: ensure self.base_path is empty
         parser = DockerfileParser(self.import_from,
                                   default_vars={'playbook_debug': False})
+
+        if os.path.isdir(self.base_path):
+            if os.listdir(self.base_path):
+                raise AnsibleContainerPathNotEmpty(u"Path is not empty", self.base_path)
         try:
             self.create_role_from_template()
+
             for data, path in [
                 (list(parser), os.path.join(self.role_path, 'tasks', 'main.yml')),
                 (parser.variables, os.path.join(self.role_path, 'defaults', 'main.yml')),
