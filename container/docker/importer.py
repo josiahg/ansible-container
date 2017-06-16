@@ -25,7 +25,6 @@ from six import iteritems
 from six.moves.urllib.parse import urlparse
 
 from container.exceptions import AnsibleContainerConductorException
-from container.exceptions import AnsibleContainerPathNotEmpty
 from container.utils import create_role_from_templates
 
 # Known issues:
@@ -483,15 +482,11 @@ class DockerfileImport(object):
                       if dir == self.import_from else [])
 
     def run(self):
+        # FIXME: ensure self.base_path is empty
         parser = DockerfileParser(self.import_from,
                                   default_vars={'playbook_debug': False})
-
-        if os.path.isdir(self.base_path):
-            if os.listdir(self.base_path):
-                raise AnsibleContainerPathNotEmpty(u"Path is not empty", self.base_path)
         try:
             self.create_role_from_template()
-
             for data, path in [
                 (list(parser), os.path.join(self.role_path, 'tasks', 'main.yml')),
                 (parser.variables, os.path.join(self.role_path, 'defaults', 'main.yml')),

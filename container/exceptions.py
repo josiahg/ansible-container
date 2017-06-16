@@ -73,6 +73,3 @@ class AnsibleContainerGalaxyFatalException(AnsibleContainerException):
 
 class AnsibleContainerGalaxyRoleException(AnsibleContainerException):
     pass
-
-class AnsibleContainerPathNotEmpty(AnsibleContainerException):
-    pass
