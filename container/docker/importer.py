@@ -26,6 +26,8 @@ from six.moves.urllib.parse import urlparse
 
 from container.exceptions import AnsibleContainerConductorException
 from container.exceptions import AnsibleContainerPathNotEmpty
+from container.exceptions import AnsibleContainerImportDirDockerException
+from container.exceptions import AnsibleContainerImportExistsException
 from container.utils import create_role_from_templates
 
 # Known issues:
@@ -439,8 +441,9 @@ class DockerfileImport(object):
     project_name = None
     import_from = None
     base_path = None
+    force = None
 
-    def __init__(self, base_path, project_name, import_from, bundle_files):
+    def __init__(self, base_path, project_name, import_from, bundle_files, force):
         # The path to write the Ansible Container project to
         self.base_path = base_path
         # The name of the Ansible Container project
@@ -450,6 +453,8 @@ class DockerfileImport(object):
         # Whether to bundle files in import_from into the role or to leave them
         # as part of the build context
         self.bundle_files = bundle_files
+        # Force overwrite of existing Ansible Container project
+        self.force = force
 
     @property
     def role_path(self):
@@ -483,15 +488,11 @@ class DockerfileImport(object):
                       if dir == self.import_from else [])
 
     def run(self):
+        self.sanity_check_directories()
         parser = DockerfileParser(self.import_from,
                                   default_vars={'playbook_debug': False})
-
-        if os.path.isdir(self.base_path):
-            if os.listdir(self.base_path):
-                raise AnsibleContainerPathNotEmpty(u"Path is not empty", self.base_path)
         try:
             self.create_role_from_template()
-
             for data, path in [
                 (list(parser), os.path.join(self.role_path, 'tasks', 'main.yml')),
                 (parser.variables, os.path.join(self.role_path, 'defaults', 'main.yml')),
@@ -575,9 +576,15 @@ class DockerfileImport(object):
         logger.info(u'variables by Ansible in your build and run operations.\n')
         logger.info(u'Good luck!')
 
-
-
-
+    def sanity_check_directories(self):
+        if os.path.isdir(self.base_path):
+            # This only works if the Dockerfile is called 'Dockerfile' - is there a better way?
+            if os.path.exists(os.path.join(self.base_path, 'Dockerfile')):
+                raise AnsibleContainerImportDirDockerException(u'Dockerfile in import directory', self.base_path)
+            if os.path.exists(os.path.join(self.base_path, 'container.yml')) and not self.force:
+                raise AnsibleContainerImportExistsException(u'container.yml in import directory', self.base_path)
+            if os.path.exists(os.path.join(self.base_path, 'roles')) and not self.force:
+                raise AnsibleContainerImportExistsException(u'roles dir in import directory', self.base_path)
 
 
 

@@ -76,3 +76,9 @@ class AnsibleContainerGalaxyRoleException(AnsibleContainerException):
 
 class AnsibleContainerPathNotEmpty(AnsibleContainerException):
     pass
+
+class AnsibleContainerImportDirDockerException(AnsibleContainerException):
+    pass
+
+class AnsibleContainerImportExistsException(AnsibleContainerException):
+    pass
