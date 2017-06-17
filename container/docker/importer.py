@@ -25,7 +25,6 @@ from six import iteritems
 from six.moves.urllib.parse import urlparse
 
 from container.exceptions import AnsibleContainerConductorException
-from container.exceptions import AnsibleContainerPathNotEmpty
 from container.exceptions import AnsibleContainerImportDirDockerException
 from container.exceptions import AnsibleContainerImportExistsException
 from container.utils import create_role_from_templates
