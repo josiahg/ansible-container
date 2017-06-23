@@ -431,9 +431,7 @@ def hostcmd_version(base_path, project_name, engine_name, **kwargs):
 
 
 @host_only
-def hostcmd_import(base_path, project_name, engine_name, force=False, **kwargs):
-    kwargs['force'] = force
-
+def hostcmd_import(base_path, project_name, engine_name, **kwargs):
     engine_obj = load_engine(['IMPORT'],
                              engine_name,
                              project_name or os.path.basename(base_path),

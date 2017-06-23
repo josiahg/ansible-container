@@ -1,0 +1,43 @@
+- name: Uses shell module - should be two tasks
+  shell: apt-get update -y
+- shell: apt-get install -y apache2
+- shell: chown -R www-data /var/log/apache2
+- shell: mkdir -p /run/apache2
+- shell: chown -R www-data /run/apache2
+- name: Ensure /usr/sbin exists
+  file:
+    path: /usr/sbin
+    state: directory
+- name: Install dumb-init from URL - get_url module
+  get_url:
+    url: https://github.com/Yelp/dumb-init/releases/download/v1.0.2/dumb-init_1.0.2_amd64
+    dest: /usr/sbin/dumb-init
+    mode: 384
+    validate_certs: no
+- name: Ensure /etc/apache2 exists
+  file:
+    path: /etc/apache2
+    state: directory
+- name: Install httpd.conf - copy module (trusty/ports.conf)
+  copy:
+    src: trusty/ports.conf
+    dest: /etc/apache2/ports.conf
+- name: Ensure /var/www/html/ exists
+  file:
+    path: /var/www/html/
+    state: directory
+- name: Install heartbeat page - unarchive module
+  unarchive:
+    src: html.tar.gz
+    dest: /var/www/html/
+- name: Ensure / exists
+  file:
+    path: /
+    state: directory
+- name: Install chaff - synchronize module (foo)
+  synchronize:
+    src: foo
+    dest: /
+    recursive: yes
+- name: Uses command module
+  command: chmod 755 /usr/sbin/dumb-init

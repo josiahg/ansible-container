@@ -1,0 +1,43 @@
+- name: Uses shell module - should be two tasks
+  shell: yum update -y
+- shell: yum install -y httpd
+- shell: chown -R apache /var/log/httpd
+- shell: mkdir -p /run/httpd
+- shell: chown -R apache /run/httpd
+- name: Ensure /usr/sbin exists
+  file:
+    path: /usr/sbin
+    state: directory
+- name: Install dumb-init from URL - get_url module
+  get_url:
+    url: https://github.com/Yelp/dumb-init/releases/download/v1.0.2/dumb-init_1.0.2_amd64
+    dest: /usr/sbin/dumb-init
+    mode: 384
+    validate_certs: no
+- name: Ensure /etc/httpd/conf exists
+  file:
+    path: /etc/httpd/conf
+    state: directory
+- name: Install httpd.conf - copy module (centos7/httpd.conf)
+  copy:
+    src: centos7/httpd.conf
+    dest: /etc/httpd/conf/httpd.conf
+- name: Ensure /var/www/html/ exists
+  file:
+    path: /var/www/html/
+    state: directory
+- name: Install heartbeat page - unarchive module
+  unarchive:
+    src: html.tar.gz
+    dest: /var/www/html/
+- name: Ensure / exists
+  file:
+    path: /
+    state: directory
+- name: Install chaff - synchronize module (foo)
+  synchronize:
+    src: foo
+    dest: /
+    recursive: yes
+- name: Uses command module
+  command: chmod 755 /usr/sbin/dumb-init
