@@ -481,6 +481,16 @@ class DockerfileImport(object):
                 dir_util.mkpath(target)
         else:
             target = self.base_path
+        if self.force:
+            files = os.listdir(self.import_from)
+            logger.debug('Files to import: %s' % files)
+            for f in files:
+                path = os.path.join(target, f)
+                if os.path.exists(path):
+                    if os.path.isdir(path):
+                        shutil.rmtree(path)
+                    else:
+                        os.remove(path)
         self.copytree(self.import_from,
                       target,
                       ignore=lambda dir, files: ['Dockerfile']
