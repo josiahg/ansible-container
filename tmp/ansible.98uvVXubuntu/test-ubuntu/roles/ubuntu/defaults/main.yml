@@ -1,3 +1,0 @@
-playbook_debug: false
-# I am defaults
-apache_port: '8000'

@@ -1,6 +1,0 @@
-settings:
-  conductor_base: centos:7
-services:
-  centos:
-    roles:
-    - centos
