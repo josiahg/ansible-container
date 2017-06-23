@@ -1,6 +1,0 @@
-settings:
-  conductor_base: ubuntu:trusty
-services:
-  ubuntu:
-    roles:
-    - ubuntu
